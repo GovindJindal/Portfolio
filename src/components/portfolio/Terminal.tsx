@@ -17,7 +17,7 @@ function run(cmd: string): string {
   if (!c) return "";
   if (c === "help") return HELP;
   if (c === "whoami" || c === "who are you") return `${PROFILE.name} · ${PROFILE.roles.join(" · ")}\n${PROFILE.edu}\nlocation: ${PROFILE.location}`;
-  if (c === "show projects" || c === "ls projects") return PROJECTS.map((p) => `  [${p.tag.padEnd(10)}] ${p.name.padEnd(22)} → ${p.tagline}`).join("\n");
+  if (c === "show projects" || c === "ls projects") return PROJECTS.map((p) => `  [${p.category.padEnd(10)}] ${p.name.padEnd(22)} → ${p.tagline}`).join("\n");
   if (c === "show skills" || c === "ls skills") return Object.entries(SKILLS).map(([k, v]) => `  ${k.padEnd(14)} :: ${v.join(", ")}`).join("\n");
   if (c === "show contact") return `  email    ${PROFILE.email}\n  github   ${PROFILE.github}\n  linkedin ${PROFILE.linkedin}`;
   if (c === "cat resume") return `Govind Jindal — AI Engineer & Full Stack Developer.\nBuilding offline-first AI (ASHA-VANI), chaos-driven detection (Fractal Fire Mamba),\nliquid neural cybersecurity, and accessibility AI.`;
