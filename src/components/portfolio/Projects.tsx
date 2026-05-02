@@ -210,8 +210,8 @@ export function Projects() {
         ) : (
           <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((p, i) => (
-              <div key={p.id} className="reveal h-full" style={{ transitionDelay: `${i * 60}ms` }}>
-              <Card p={p} onOpen={() => setOpen(p)} />
+              <div key={p.id} className="h-full">
+                <Card p={p} onOpen={() => setOpen(p)} />
               </div>
             ))}
           </div>
