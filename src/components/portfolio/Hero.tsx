@@ -5,7 +5,10 @@ import avatarImg from "@/assets/avatar.png";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 const HISAR_COORDS: [number, number] = [29.1492, 75.7217];
+const CHITKARA_COORDS: [number, number] = [30.516389, 76.658611];
+const MAP_CENTER: [number, number] = [29.8328, 76.1892];
 const NODE_ID = "NODE_0286";
+const STUDY_NODE_ID = "NODE_CU01";
 
 function LocationPreviewCard({ onOpen }: { onOpen: () => void }) {
   return (
@@ -55,15 +58,15 @@ function LocationPreviewCard({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function createNodeIcon() {
+function createNodeIcon(nodeId: string, lat: number, lng: number) {
   return `
     <div class="map-node">
       <span class="map-node__pulse"></span>
       <span class="map-node__dot"></span>
       <div class="map-node__hud">
-        <div class="map-node__hud-row"><span>NODE</span><strong>${NODE_ID}</strong></div>
+        <div class="map-node__hud-row"><span>NODE</span><strong>${nodeId}</strong></div>
         <div class="map-node__hud-row"><span>STATUS</span><strong>ACTIVE</strong></div>
-        <div class="map-node__hud-row"><span>LAT/LNG</span><strong>29.1492 / 75.7217</strong></div>
+        <div class="map-node__hud-row"><span>LAT/LNG</span><strong>${lat.toFixed(4)} / ${lng.toFixed(4)}</strong></div>
       </div>
     </div>
   `;
@@ -100,13 +103,23 @@ function WorldMap({ className = "", preview = false }: { className?: string; pre
     if (!mapModules) return null;
     return mapModules.L.divIcon({
       className: "map-node-icon",
-      html: createNodeIcon(),
+      html: createNodeIcon(NODE_ID, HISAR_COORDS[0], HISAR_COORDS[1]),
       iconSize: [180, 80],
       iconAnchor: [18, 18],
     });
   }, [mapModules]);
 
-  if (!mapModules || !markerIcon) {
+  const studyMarkerIcon = useMemo(() => {
+    if (!mapModules) return null;
+    return mapModules.L.divIcon({
+      className: "map-node-icon",
+      html: createNodeIcon(STUDY_NODE_ID, CHITKARA_COORDS[0], CHITKARA_COORDS[1]),
+      iconSize: [180, 80],
+      iconAnchor: [18, 18],
+    });
+  }, [mapModules]);
+
+  if (!mapModules || !markerIcon || !studyMarkerIcon) {
     return <div className={`${className} bg-[#090909]`} />;
   }
 
@@ -115,7 +128,7 @@ function WorldMap({ className = "", preview = false }: { className?: string; pre
   return (
     <div className={className}>
       <MapContainer
-        center={HISAR_COORDS}
+        center={MAP_CENTER}
         zoom={preview ? 3 : 4}
         scrollWheelZoom
         doubleClickZoom
@@ -138,6 +151,16 @@ function WorldMap({ className = "", preview = false }: { className?: string; pre
             Hisar, Haryana — India
           </Tooltip>
         </Marker>
+        <Marker position={CHITKARA_COORDS} icon={studyMarkerIcon}>
+          <Tooltip
+            direction="top"
+            offset={[0, -18]}
+            className="leaflet-node-tooltip"
+            opacity={1}
+          >
+            Chitkara University (Punjab Campus), Rajpura — 30°30'59"N, 76°39'31"E
+          </Tooltip>
+        </Marker>
       </MapContainer>
     </div>
   );
@@ -149,18 +172,21 @@ function LocationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o
       <DialogContent className="map-modal border-white/10 bg-transparent p-0 shadow-none sm:rounded-[1.75rem]">
         <DialogTitle className="sr-only">Location module</DialogTitle>
         <DialogDescription className="sr-only">
-          Interactive world map centered on Hisar, Haryana, India.
+          Interactive world map showing Hisar and Chitkara University (Punjab campus).
         </DialogDescription>
         <div className="relative h-full min-h-[100svh] w-full overflow-hidden bg-[#090909] sm:min-h-[90vh] sm:rounded-[1.75rem]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(182,255,0,0.12),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.4))] pointer-events-none z-10" />
           <div className="absolute left-5 top-5 z-20 rounded-2xl glass-strong px-4 py-3 sm:left-6 sm:top-6">
             <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">geo / node interface</div>
-            <div className="mt-2 text-lg text-foreground">Hisar, Haryana — India</div>
+            <div className="mt-2 text-lg text-foreground">Hisar + Chitkara University (Punjab)</div>
             <div className="mt-3 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
               <span className="rounded-full border border-white/10 px-2 py-1">lat 29.1492</span>
               <span className="rounded-full border border-white/10 px-2 py-1">lng 75.7217</span>
+              <span className="rounded-full border border-white/10 px-2 py-1">lat 30.5164</span>
+              <span className="rounded-full border border-white/10 px-2 py-1">lng 76.6586</span>
               <span className="rounded-full border border-lime/20 bg-lime/10 px-2 py-1 text-lime">status active</span>
               <span className="rounded-full border border-white/10 px-2 py-1">{NODE_ID}</span>
+              <span className="rounded-full border border-white/10 px-2 py-1">{STUDY_NODE_ID}</span>
             </div>
           </div>
           <div className="absolute bottom-5 left-5 z-20 hidden rounded-2xl glass px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:block">
