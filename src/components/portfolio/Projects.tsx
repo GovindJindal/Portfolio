@@ -25,7 +25,7 @@ function StatusBadge({ status }: { status?: Project["status"] }) {
 
 function Card({ p, onOpen }: { p: Project; onOpen: () => void }) {
   const idx = PROJECTS.indexOf(p);
-  const liveHref = p.id === "ayur" ? p.demo : undefined;
+  const liveHref = p.demo;
 
   return (
     <div
@@ -92,21 +92,25 @@ function Card({ p, onOpen }: { p: Project; onOpen: () => void }) {
           {p.stack.length > 4 && <span className="tag">+{p.stack.length - 4}</span>}
         </div>
 
-        <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between gap-3">
-          <span className="text-[11px] font-mono text-lime/90 line-clamp-1">▸ {p.impact}</span>
-          <div className="flex items-center gap-2">
+        {/* Action Footer */}
+        <div className="mt-auto pt-5 border-t border-white/5 flex items-center justify-between gap-3">
+          <div className="flex-1">
+            <span className="text-[11px] font-mono text-lime/90 line-clamp-1 uppercase tracking-wider">▸ {p.impact}</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
             {liveHref && (
               <a
                 href={liveHref}
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="rounded-full border border-white/10 px-3 py-1.5 text-xs font-mono uppercase tracking-widest text-muted-foreground transition hover:text-lime hover:border-lime/40"
+                className="rounded-full bg-lime px-3 py-1 text-[10px] font-mono uppercase tracking-[0.1em] text-[#0D0D0D] transition hover:bg-white hover:text-black font-bold whitespace-nowrap"
               >
                 Live →
               </a>
             )}
-            <span className="text-[11px] font-mono text-muted-foreground group-hover:text-lime transition translate-x-0 group-hover:translate-x-0.5">
+            <span className="text-[11px] font-mono text-muted-foreground group-hover:text-lime transition-colors whitespace-nowrap">
               inspect →
             </span>
           </div>
