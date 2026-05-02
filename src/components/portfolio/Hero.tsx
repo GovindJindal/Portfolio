@@ -7,9 +7,9 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 const HISAR_COORDS: [number, number] = [29.1492, 75.7217];
 const NODE_ID = "NODE_0286";
 
-function LocationPreviewCard() {
+function LocationPreviewCard({ onOpen }: { onOpen: () => void }) {
   return (
-    <div className="map-preview-card pointer-events-none absolute right-0 top-full z-40 mt-3 w-[17rem] origin-top-right rounded-2xl glass-strong p-3 opacity-0 shadow-[0_22px_70px_-24px_rgba(0,0,0,0.9)] transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 translate-y-2 scale-95">
+    <div className="map-preview-card pointer-events-auto absolute right-0 top-full z-40 mt-3 w-[17rem] origin-top-right rounded-2xl glass-strong p-3 opacity-0 shadow-[0_22px_70px_-24px_rgba(0,0,0,0.9)] transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 translate-y-2 scale-95">
       <div className="mb-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
         <span>location preview</span>
         <span className="text-lime/80">active</span>
@@ -43,9 +43,13 @@ function LocationPreviewCard() {
           <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Hisar, Haryana</div>
           <div className="mt-1 text-sm text-foreground">India node online</div>
         </div>
-        <div className="rounded-full border border-lime/20 bg-lime/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lime">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="rounded-full border border-lime/20 bg-lime/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lime transition-colors hover:bg-lime/20 hover:border-lime/40 cursor-pointer"
+        >
           click
-        </div>
+        </button>
       </div>
     </div>
   );
@@ -65,29 +69,26 @@ function createNodeIcon() {
   `;
 }
 
+let cachedMapModules: any = null;
+
 function WorldMap({ className = "", preview = false }: { className?: string; preview?: boolean }) {
-  const [mapModules, setMapModules] = useState<null | {
-    MapContainer: any;
-    Marker: any;
-    TileLayer: any;
-    Tooltip: any;
-    L: any;
-  }>(null);
+  const [mapModules, setMapModules] = useState<any>(cachedMapModules);
 
   useEffect(() => {
+    if (cachedMapModules) return;
+
     let mounted = true;
-
-    if (typeof window === "undefined") return () => undefined;
-
     Promise.all([import("react-leaflet"), import("leaflet")]).then(([reactLeaflet, leaflet]) => {
       if (!mounted) return;
-      setMapModules({
+      const modules = {
         MapContainer: reactLeaflet.MapContainer,
         Marker: reactLeaflet.Marker,
         TileLayer: reactLeaflet.TileLayer,
         Tooltip: reactLeaflet.Tooltip,
         L: leaflet.default,
-      });
+      };
+      cachedMapModules = modules;
+      setMapModules(modules);
     });
 
     return () => {
@@ -166,7 +167,7 @@ function LocationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o
             <div>zoom + pan enabled</div>
             <div className="mt-1 text-lime/80">signal lock / neural lime</div>
           </div>
-          <WorldMap className="h-full w-full" />
+          {open && <WorldMap className="h-full w-full" />}
         </div>
       </DialogContent>
     </Dialog>
@@ -238,7 +239,7 @@ function AbstractVisual({ onOpenMap }: { onOpenMap: () => void }) {
             <div>LAT 28.6°N India</div>
             <div className="text-lime/60">↳ geo module</div>
           </button>
-          <LocationPreviewCard />
+          <LocationPreviewCard onOpen={onOpenMap} />
         </div>
       </div>
       <div className="absolute bottom-0 left-0 font-mono text-[10px] text-muted-foreground">
@@ -255,6 +256,10 @@ function AbstractVisual({ onOpenMap }: { onOpenMap: () => void }) {
 
 export function Hero() {
   const [isMapOpen, setIsMapOpen] = useState(false);
+
+  function openMap() {
+    setIsMapOpen(true);
+  }
 
   return (
     <>
@@ -335,7 +340,7 @@ export function Hero() {
           </div>
 
           <div className="animate-fade-up flex justify-center md:justify-end md:pr-2 lg:pr-4" style={{ animationDelay: ".15s" }}>
-            <AbstractVisual onOpenMap={() => setIsMapOpen(true)} />
+            <AbstractVisual onOpenMap={openMap} />
           </div>
         </div>
 
